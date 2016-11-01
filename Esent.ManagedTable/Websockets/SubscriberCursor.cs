@@ -25,11 +25,14 @@ namespace EsentTempTableTest
             // Iterate over all records tagged with the channel
             Api.JetSetCurrentIndex(_sesid, _table, "channelindex");
             Api.MakeKey(_sesid, _table, channel, Encoding.ASCII, MakeKeyGrbit.NewKey);
+
+            var subscribers = new List<string>();
             if (Api.TrySeek(_sesid, _table, SeekGrbit.SeekEQ))
             {
                 Api.MakeKey(_sesid, _table, channel, Encoding.ASCII, MakeKeyGrbit.NewKey);
                 Api.JetSetIndexRange(_sesid, _table, SetIndexRangeGrbit.RangeInclusive | SetIndexRangeGrbit.RangeUpperLimit);
 
+                
                 do
                 {
                     string subscriber = Api.RetrieveColumnAsString(
@@ -39,12 +42,13 @@ namespace EsentTempTableTest
                         Encoding.ASCII
                     );
 
-                    yield return subscriber;
+                    subscribers.Add(subscriber);
 
                 } while (Api.TryMoveNext(_sesid, _table));
             }
 
             Api.JetSetCurrentIndex(_sesid, _table, null);
+            return subscribers;
         }
 
         public IEnumerable<string> GetChannelsBySubscriber(string subscriber)
@@ -58,15 +62,17 @@ namespace EsentTempTableTest
 
             Api.JetRetrieveColumns(_sesid, _table, new[] { column }, 1);
 
-            int count = column.itagSequence; 
+            int count = column.itagSequence;
+            var channels = new string[count];
             for (int i = 1; i <= count; i++)
             {
                 JET_RETINFO retinfo = new JET_RETINFO { itagSequence = i };
                 byte[] data = Api.RetrieveColumn(_sesid, _table, _channelColumn, RetrieveColumnGrbit.None, retinfo);
                 var channel = Encoding.ASCII.GetString(data);
-                yield return channel;
+                channels[i] = channel;
             }
 
+            return channels;
         }
 
         /// <summary>

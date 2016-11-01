@@ -17,6 +17,7 @@ namespace EsentTempTableTest
             // In production make one of these a runtime variable
             // so there is no overlap if multiple processes are running            
                   
+            /*
             using (var cache = new SubscriberTable())
             {
                 cache.Subscribe("sub1", new[] { "chan1", "chan2" });
@@ -36,7 +37,7 @@ namespace EsentTempTableTest
                 var chan4Subs = cache.GetSubscribers("chan4").ToList();
                 
                 Console.ReadLine();
-            }
+            }*/
             
             using (var cache = new CacheTable(256))
             {
@@ -64,8 +65,21 @@ namespace EsentTempTableTest
                 Console.WriteLine($"Writing 12k records took {sw.Elapsed.TotalSeconds}");
                 sw.Restart();
 
+                for (int i = 0; i < 12000; i++)
+                {
+                    var data = cache.GetData(
+                        $"hash:test:{i}"
+                    );
+
+                    var test = Lz4.DecompressBytes(data);
+                }
+
+                Console.WriteLine($"Reading 12k records took {sw.Elapsed.TotalSeconds}");
+                sw.Restart();
+
+
                 // Access the first 1000 a few times to cache them
-                for (int k = 0; k < 100; k++)
+                for (int k = 0; k < 12; k++)
                 {
                     for (int i = 0; i < 1000; i++)
                     {
@@ -75,12 +89,11 @@ namespace EsentTempTableTest
 
                         var test = Lz4.DecompressBytes(data);
                     }
-                    Console.WriteLine($"Reading 1k records took {sw.Elapsed.TotalMilliseconds}");
-                    sw.Restart();
                 }
-                Console.ReadLine();
 
-               
+                Console.WriteLine($"Reading 1k hot records 12 times took {sw.Elapsed.TotalMilliseconds}");
+                sw.Restart();
+                Console.ReadLine();
                 
                 cache.Set(
                     $"hash:test:slide5",
