@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Isam.Esent.Interop;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
 
     /// <summary>

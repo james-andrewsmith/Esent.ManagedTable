@@ -8,7 +8,7 @@ using Microsoft.Isam.Esent.Interop;
 using Microsoft.Isam.Esent;
 
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public abstract class ManagedTableCursor<TConfig> : IDisposable 
                                         where TConfig : ManagedTableConfig

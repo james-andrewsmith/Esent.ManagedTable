@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Isam.Esent.Interop;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class CacheCursor : ManagedTableCursor<CacheConfig>
     {
@@ -39,6 +39,9 @@ namespace EsentTempTableTest
         public void Replace(CacheEntry entry)
         {
             SetEntry(entry, JET_prep.Replace);
+             
+
+
         }
 
         /// <summary>
@@ -78,6 +81,41 @@ namespace EsentTempTableTest
                     _callbacksColumn,
                     entry.PostEvicationCallbacks
                 );
+
+                // Avoid race conditions on update by making sure the record
+                // is clear 
+                if (updateType == JET_prep.Replace)
+                {
+                    // Get the existing channels 
+                    var column = new JET_RETRIEVECOLUMN
+                    {
+                        columnid = _dependencyColumn,
+                        grbit = RetrieveColumnGrbit.RetrieveTag
+                    };
+                    Api.JetRetrieveColumns(_sesid, _table, new[] { column }, 1);
+
+                    // This is a bit tricky, note that when an item is removed all the 
+                    // itag sequences update to be one lower
+                    int count = column.itagSequence; 
+                    for (int i = 0; i < count; i++)
+                    {
+                        JET_SETINFO setInfo = new JET_SETINFO { itagSequence = 1 };
+                        Api.JetSetColumn(
+                            _sesid,
+                            _table,
+                            _dependencyColumn,
+                            null,
+                            0,
+                            SetColumnGrbit.UniqueMultiValues,
+                            setInfo
+                        );
+                    }
+
+                    Api.SetColumn(_sesid, _table, _absoluteExpirationColumn, null);
+                    Api.SetColumn(_sesid, _table, _lastAccessedColumn, null);
+                    Api.SetColumn(_sesid, _table, _slidingExpirationColumn, null);
+                }
+
 
                 if (entry.AbsoluteExpiration > 0)
                 {                   
@@ -134,7 +172,7 @@ namespace EsentTempTableTest
             catch (Exception exp)
             {
                 Api.JetPrepareUpdate(_sesid, _table, JET_prep.Cancel);
-                throw;
+                throw exp;
             }
         }
 
@@ -152,12 +190,22 @@ namespace EsentTempTableTest
 
         public void SetLastAccess(long epoch)
         {
-            Api.SetColumn(
-                _sesid,
-                _table,
-                _lastAccessedColumn,
-                epoch
-            );
+            Api.JetPrepareUpdate(_sesid, _table, JET_prep.Replace);
+            try
+            {
+                Api.SetColumn(
+                    _sesid,
+                    _table,
+                    _lastAccessedColumn,
+                    epoch
+                );
+                Api.JetUpdate(_sesid, _table);
+            }
+            catch (Exception exp)
+            {
+                Api.JetPrepareUpdate(_sesid, _table, JET_prep.Cancel);
+                throw exp;
+            }
         }
 
         /// <summary>

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Isam.Esent.Interop;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class SubscriberCursor : ManagedTableCursor<SubscriberConfig>
     {

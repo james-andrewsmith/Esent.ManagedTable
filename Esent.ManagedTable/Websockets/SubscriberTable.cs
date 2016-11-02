@@ -10,7 +10,7 @@ using Microsoft.Isam.Esent.Interop;
 using Microsoft.Isam.Esent.Interop.Windows7;
 using Microsoft.Isam.Esent.Interop.Vista;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class SubscriberTable : ManagedTable<SubscriberConfig, SubscriberCursor>
     {

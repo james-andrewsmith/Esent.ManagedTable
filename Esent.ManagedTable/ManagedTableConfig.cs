@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Database.Isam.Config;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public abstract class ManagedTableConfig
     {

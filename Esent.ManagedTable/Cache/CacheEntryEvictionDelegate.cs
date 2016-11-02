@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     /// <summary>
     /// Signature of the callback which gets called when a cache entry expires.

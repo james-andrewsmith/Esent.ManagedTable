@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Database.Isam.Config;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class SubscriberConfig : ManagedTableConfig
     {

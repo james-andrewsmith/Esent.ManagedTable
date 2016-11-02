@@ -13,7 +13,7 @@ using Microsoft.Isam.Esent.Interop;
 using Microsoft.Isam.Esent.Interop.Windows7;
 using Microsoft.Isam.Esent.Interop.Vista;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class CacheTable : ManagedTable<CacheConfig, CacheCursor>
     {
@@ -233,15 +233,24 @@ namespace EsentTempTableTest
             // Clean up
             Api.JetCloseTable(session, tableID);
         }
+
+        public void Set(long key, 
+                        byte[] data, 
+                        CacheEntryOptions options = null)
+        {
+            Set(key.ToString(), data, options);
+        }
          
         public void Set(string key, 
                         byte[] data, 
                         CacheEntryOptions options = null)
         {
-            
-            
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
 
-
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            
             int[] callbacks = null;
             string[] dependencies = null;
 
@@ -370,8 +379,19 @@ namespace EsentTempTableTest
             throw new NotImplementedException();
         }
 
+        public byte[] GetData(long key)
+        {
+            if (key == 0)
+                throw new ArgumentNullException(nameof(key));
+
+            return GetData(key.ToString());
+        }
+
         public byte[] GetData(string key)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
             // Lookup all subscribers in the index for this channel
             // Return them all
             return ReturnReadLockedOperation(() =>
@@ -419,9 +439,16 @@ namespace EsentTempTableTest
             });
         }
 
+        public bool TryGetData(long key, out byte[] data)
+        {
+            data = GetData(key);
+            return data != null;
+        }
+
         public bool TryGetData(string key, out byte[] data)
         {
-            throw new NotImplementedException();
+            data = GetData(key);
+            return data != null;
         }
 
         public bool TryGet(string key, out CacheEntry data)

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Lz4Net;
 
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
+#if DEBUG
     class Program
     {
         static void Main(string[] args)
@@ -193,4 +194,5 @@ namespace EsentTempTableTest
             Console.WriteLine($"{key} evicted for {reason} using second delegate");
         }
     }
+#endif
 }

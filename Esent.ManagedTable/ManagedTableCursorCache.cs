@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Isam.Esent.Interop;
 
-namespace EsentTempTableTest
+namespace Esent.ManagedTable
 {
     public class ManagedTableCursorCache<TConfig, TCursor> : IDisposable 
                                              where TConfig : ManagedTableConfig
@@ -105,7 +105,7 @@ namespace EsentTempTableTest
             }
 
             // Didn't find a slot to cache the cursor in
-            Console.WriteLine($"Dispose Cursor {cursor._sesid.ToString()} via thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            // Console.WriteLine($"Dispose Cursor {cursor._sesid.ToString()} via thread {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             cursor.Dispose();
         }    
 
