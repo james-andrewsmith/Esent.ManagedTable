@@ -32,10 +32,7 @@ namespace Esent.ManagedTable
                     typeof(long),
                     typeof(long[])
                 }                
-            ));
-
-            _ss = _wire.GetSerializerSession();
-            _ds = _wire.GetDeserializerSession();
+            ));            
         }
 
         private static Func<Instance, CacheConfig, CacheCursor> OpenCursor = 
@@ -47,12 +44,8 @@ namespace Esent.ManagedTable
 
         
         private DateTimeOffset _lastExpirationScan;
-
-
         private readonly Serializer _wire;
-        private readonly SerializerSession _ss;
-        private readonly DeserializerSession _ds;
-
+        
 
         /// <summary>
         /// This whole function is called from within a tranaction
@@ -302,7 +295,7 @@ namespace Esent.ManagedTable
 
             using (var ms = new System.IO.MemoryStream())
             {
-                _wire.Serialize(callbacks, ms, _ss);
+                _wire.Serialize(callbacks, ms);
                 entry.PostEvicationCallbacks = ms.ToArray();
             }
             
@@ -699,7 +692,7 @@ namespace Esent.ManagedTable
                     int[] callbacks;
                     using (var ms = new System.IO.MemoryStream(entry.PostEvicationCallbacks))
                     {
-                        callbacks = _wire.Deserialize<int[]>(ms, _ds);                        
+                        callbacks = _wire.Deserialize<int[]>(ms);                        
                     }
 
                     // Find each callback and run it 

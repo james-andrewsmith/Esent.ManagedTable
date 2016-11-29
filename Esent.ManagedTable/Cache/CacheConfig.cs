@@ -30,7 +30,8 @@ namespace Esent.ManagedTable
                 // Global params
                 CacheSizeMin = (_size / 64) * 8192,
                 CacheSize = (_size / 64) * 8192,
-                EnableFileCache = true                                
+                EnableFileCache = true,
+                DatabaseFilename = Guid.NewGuid().ToString("N")
             };
         }
 
