@@ -39,9 +39,7 @@ namespace Esent.ManagedTable
             var defaultConfig = ManagedTableDefaultConfig.GetDefaultDatabaseConfig();
             var databaseConfig = new DatabaseConfig();
 
-            var databaseDirectory = Environment.CurrentDirectory;
-            var databasePath = Path.Combine(databaseDirectory, defaultConfig.DatabaseFilename);
-            // databaseConfig.DatabaseFilename = databasePath;
+            var databaseDirectory = Environment.CurrentDirectory; 
             databaseConfig.SystemPath = databaseDirectory;
             databaseConfig.LogFilePath = databaseDirectory;
             databaseConfig.TempPath = databaseDirectory;
@@ -65,7 +63,9 @@ namespace Esent.ManagedTable
             InitGrbit grbit = databaseConfig.DatabaseRecoveryFlags | (EsentVersion.SupportsWindows7Features ? Windows7Grbits.ReplayIgnoreLostLogs : InitGrbit.None);
             _instance.Init(grbit);
 
-            // 
+            // Recalculate path
+            var databasePath = Path.Combine(databaseDirectory, databaseConfig.DatabaseFilename);
+
             try
             {
                 

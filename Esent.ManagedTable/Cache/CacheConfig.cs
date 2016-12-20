@@ -25,13 +25,15 @@ namespace Esent.ManagedTable
 
         public override DatabaseConfig GetDefaultDatabaseConfig()
         {
+            var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+
             return new DatabaseConfig()
             {
                 // Global params
                 CacheSizeMin = (_size / 64) * 8192,
                 CacheSize = (_size / 64) * 8192,
                 EnableFileCache = true,
-                DatabaseFilename = Guid.NewGuid().ToString("N")
+                DatabaseFilename = $"{currentProcess.ProcessName}-{currentProcess.Id}.edb"
             };
         }
 
