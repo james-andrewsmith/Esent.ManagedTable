@@ -494,7 +494,36 @@ namespace Esent.ManagedTable
 
         public void RemoveByKey(string key)
         {
+            ReturnReadLockedOperation<int>(() =>
+            {
+                var cursor = _cursors.GetCursor();
+                cursor.MakeKey(key);
+                lock (LockObject(cursor.GetNormalizedKey()))
+                {
+                    try
+                    {
+                        // Start a transaction so the record can't be deleted after
+                        // we seek to it.  
+                        using (var transaction = cursor.BeginLazyTransaction())
+                        {
+                            // If it exists, then ensure the channels are all subscribed
+                            // Do not throw an error
+                            if (!cursor.TrySeek())
+                            {
+                                return 0;
+                            }
 
+                            cursor.DeleteCurrent();
+                            transaction.Commit();
+                            return 0;                      
+                        } 
+                    }
+                    finally
+                    {
+                        _cursors.FreeCursor(cursor);
+                    }
+                }
+            });
         }
 
         private IEnumerable<CacheEntry> RemoveByAbsoluteExpiryLessThan(long epoch)
